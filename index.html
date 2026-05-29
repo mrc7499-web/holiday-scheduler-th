@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจัดตารางวันหยุดออนไลน์</title>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6fb;margin:0;color:#111827}
+    .container{max-width:1450px;margin:0 auto;padding:24px}
+    h1{margin:0 0 8px}.subtitle{color:#6b7280;margin-top:0}
+    .grid{display:grid;grid-template-columns:430px 1fr;gap:16px;align-items:start}
+    .card{background:white;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin-bottom:16px}
+    label{display:block;font-weight:800;margin:12px 0 6px}
+    input,textarea,select,button{width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:10px;padding:10px;font-size:15px}
+    textarea{min-height:86px;resize:vertical}
+    button{background:#2563eb;color:white;border:none;cursor:pointer;font-weight:900;margin-top:12px}
+    button.green{background:#059669}button.gray{background:#4b5563}button.red{background:#dc2626}button.orange{background:#ea580c}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .rule{background:#eff6ff;border-left:5px solid #2563eb;padding:12px;border-radius:10px;color:#1e3a8a;font-size:14px}
+    .dangerbox{background:#fef2f2;border-left:5px solid #dc2626;padding:12px;border-radius:10px;color:#7f1d1d;font-size:14px}
+    .ok{background:#ecfdf5;border-left:5px solid #10b981;padding:12px;border-radius:10px;color:#065f46}
+    .warn{background:#fff7ed;border-left:5px solid #f97316;padding:12px;border-radius:10px;color:#7c2d12}
+    .small{font-size:13px;color:#6b7280}
+    .calendar-title{font-size:25px;font-weight:950}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:13px}.legend span{padding:5px 8px;border-radius:999px}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;background:white}
+    .dow{background:#111827;color:white;text-align:center;font-weight:900;padding:10px 4px;font-size:13px}
+    .day{min-height:160px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:8px;box-sizing:border-box;background:white}
+    .day:nth-child(7n){border-right:none}.empty{background:#f3f4f6}.busy-day{background:#fff1f2}
+    .date-num{font-weight:950;font-size:16px;margin-bottom:4px}.period{font-size:11px;color:#6b7280;margin-bottom:4px}
+    .busy-label{display:inline-block;background:#dc2626;color:white;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;margin-bottom:5px}
+    .shift{border-radius:10px;padding:6px;margin-top:6px;font-size:12px;line-height:1.35}.morning{background:#fef3c7;color:#78350f}.night{background:#e0e7ff;color:#312e81}
+    .off{display:inline-block;background:#fee2e2;color:#991b1b;border-radius:999px;padding:2px 6px;margin:2px 2px 0 0;font-weight:800}
+    .work{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:2px 6px;margin:2px 2px 0 0}
+    .date-pill{display:inline-block;background:#eef2ff;color:#3730a3;padding:5px 8px;border-radius:999px;margin:3px;font-size:13px;font-weight:800}
+    .person-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+    .person-card{border:1px solid #e5e7eb;border-radius:14px;padding:12px;background:#fbfdff}.person-name{font-weight:950;font-size:17px;margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}th,td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;vertical-align:top}th{background:#f9fafb}
+    .swapbox{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-top:12px}
+    @media print{.no-print{display:none!important}.grid{display:block}.card{box-shadow:none}}
+    @media(max-width:980px){.grid,.two{grid-template-columns:1fr}.calendar{grid-template-columns:1fr}.dow,.empty{display:none}.day{min-height:auto;border-right:none}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>ระบบจัดตารางวันหยุดออนไลน์</h1>
+  <p class="subtitle">หลายคนเปิดลิงก์เดียวกันได้ ข้อมูลบันทึกกลางบน Firebase และอัปเดตแบบ realtime</p>
+
+  <div class="grid">
+    <div class="card no-print">
+      <h2>ตั้งค่า</h2>
+      <div id="onlineStatus" class="warn">กำลังเชื่อมต่อ Firebase...</div>
+      <br>
+      <div class="rule">ทุกครั้งที่กดสร้างตารางหรือสลับวันหยุด ระบบจะบันทึกขึ้นออนไลน์ทันที ทุกคนที่เปิดลิงก์จะเห็นข้อมูลเดียวกัน</div>
+
+      <div class="two">
+        <div><label>เดือน</label><select id="month"></select></div>
+        <div><label>ปี ค.ศ.</label><input id="year" type="number" min="2020" max="2100"></div>
+      </div>
+
+      <label>ชื่อผู้แก้ไข</label>
+      <input id="editorName" placeholder="เช่น หัวหน้า A">
+
+      <label>วันที่งานเยอะ / ห้ามหยุด</label>
+      <textarea id="busyDates" placeholder="เช่น&#10;1&#10;15&#10;30"></textarea>
+      <div class="dangerbox">วันที่ใส่ในช่องนี้ ทุกคนจะเป็น “ทำงาน” ไม่มีการสุ่มหรือสลับให้หยุด</div>
+
+      <div class="two">
+        <div><label>พนักงานกะเช้า</label><textarea id="morningEmployees" placeholder="A&#10;B&#10;C"></textarea></div>
+        <div><label>พนักงานกะดึก</label><textarea id="nightEmployees" placeholder="D&#10;E&#10;F"></textarea></div>
+      </div>
+
+      <div class="two">
+        <div><label>กะเช้า: หยุดได้กี่คน/วัน</label><input id="morningCapacity" type="number" min="0" value="1"></div>
+        <div><label>กะดึก: หยุดได้กี่คน/วัน</label><input id="nightCapacity" type="number" min="0" value="1"></div>
+      </div>
+
+      <div class="two">
+        <div><label>วันหยุดเป้าหมายต่อคน</label><input id="targetDays" type="number" min="1" value="4"></div>
+        <div><label>วันหยุดสูงสุดต่อคน</label><input id="maxDays" type="number" min="1" value="6"></div>
+      </div>
+
+      <label>ระยะห่างขั้นต่ำระหว่างวันหยุด</label>
+      <select id="minGap">
+        <option value="1">อย่างน้อย 1 วัน</option>
+        <option value="2" selected>อย่างน้อย 2 วัน</option>
+        <option value="3">อย่างน้อย 3 วัน</option>
+        <option value="4">อย่างน้อย 4 วัน</option>
+      </select>
+
+      <label><input id="reserveEndMonth" type="checkbox" checked style="width:auto;margin-right:6px;">กันโควตาไว้ช่วงสิ้นเดือน</label>
+      <label><input id="spreadPeriods" type="checkbox" checked style="width:auto;margin-right:6px;">กระจายต้นเดือน / กลางเดือน / สิ้นเดือน</label>
+
+      <button onclick="runScheduler()">สร้างและบันทึกออนไลน์</button>
+
+      <div class="swapbox">
+        <h2>ขอสลับวันหยุด</h2>
+        <label>คนที่มีวันหยุด</label><select id="swapFrom"></select>
+        <label>วันหยุดเดิมที่ต้องการแลก</label><select id="swapFromDate"></select>
+        <label>แลกกับเพื่อนในกะเดียวกัน</label><select id="swapTo"></select>
+        <label>วันที่ของเพื่อนที่จะแลกกลับ</label><select id="swapToDate"></select>
+        <button class="orange" onclick="swapHoliday()">สลับและบันทึกทันที</button>
+        <div class="small">กะเช้าแลกกะเช้าเท่านั้น / กะดึกแลกกะดึกเท่านั้น</div>
+      </div>
+
+      <button class="green" onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>
+      <button class="gray" onclick="downloadCSV()">ดาวน์โหลด CSV</button>
+      <button class="red" onclick="clearLocalOnly()">ล้างหน้าจอ</button>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="calendar-title" id="calendarTitle">ยังไม่ได้สร้างปฏิทิน</div>
+        <div class="legend">
+          <span class="morning">กะเช้า</span><span class="night">กะดึก</span><span class="off">หยุด</span><span class="work">ทำงาน</span><span style="background:#dc2626;color:white;">ห้ามหยุด</span>
+        </div>
+        <div id="summary" class="warn" style="margin-top:12px;">ตั้งค่าแล้วกด “สร้างและบันทึกออนไลน์”</div>
+        <div id="calendar" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="card"><h2>สรุปง่าย ๆ: ใครหยุดวันไหนบ้าง</h2><div id="personSummary" class="small">ยังไม่มีข้อมูล</div></div>
+      <div class="card"><h2>ประวัติการสลับ / การแก้ไข</h2><div id="swapHistory" class="small">ยังไม่มีประวัติ</div></div>
+      <div class="card"><h2>ตรวจความยุติธรรม</h2><div id="fairnessSummary" class="small">ยังไม่มีข้อมูล</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./firebase-config.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
