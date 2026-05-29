@@ -44,3 +44,21 @@ firebase deploy
 - Use existing project
 - Public directory: `.`
 - Configure as single-page app: No
+
+
+## เพิ่มใหม่: หน้าสรุปล่าสุด
+
+หลัง Deploy แล้วจะมี 2 หน้า:
+
+- หน้าแก้ไขตาราง:
+  `https://YOUR-DOMAIN.vercel.app/index.html`
+
+- หน้าสรุปล่าสุดสำหรับพนักงาน:
+  `https://YOUR-DOMAIN.vercel.app/summary.html`
+
+หน้าสรุปล่าสุดจะแสดง:
+- ตารางล่าสุดของเดือนปัจจุบัน
+- อัปเดตล่าสุดเมื่อไหร่
+- ใครเป็นคนแก้ล่าสุด
+- สรุปว่าแต่ละคนหยุดวันไหน
+- ประวัติการแก้ไข/สลับล่าสุด

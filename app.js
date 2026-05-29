@@ -81,7 +81,13 @@ async function saveOnline(actionText) {
   swapHistory = history;
 
   await setDoc(doc(db, "schedules", scheduleId()), {
-    currentConfig, rows: lastRows, history: swapHistory, updatedAt: serverTimestamp(), updatedBy: editor
+    currentConfig,
+    rows: lastRows,
+    history: swapHistory,
+    updatedAt: serverTimestamp(),
+    updatedAtText: new Date().toLocaleString("th-TH"),
+    updatedBy: editor,
+    scheduleIdText: scheduleId()
   }, { merge: true });
 }
 

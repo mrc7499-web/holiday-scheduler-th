@@ -1,7 +1,8 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ใช้งานง่าย: ทุกคนที่มีลิงก์สามารถอ่าน/แก้ตารางได้
+    // เหมาะสำหรับเริ่มทดสอบในทีมเล็ก
     match /schedules/{scheduleId} {
       allow read, write: if true;
     }
